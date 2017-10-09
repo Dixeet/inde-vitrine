@@ -9,31 +9,37 @@ $(document).ready(onReady);
 
 function onReady() {
   showTitle().then(function () {
-    scramble();
     showHeader();
     showFooter();
-    showInfos();
+    scramble('.infos').then(function () {
+      return scramble('.exp');
+    });
   });
 }
 
 function scramble() {
-  var phrases = $('.phrase');
-  var $phrases = $('#phrases');
-  var el = $phrases[0];
-  el.innerHTML = '';
-  $phrases.removeClass('hide');
-  var fx = new TextScramble(el);
-  var counter = 0;
-  var next = function next() {
-    fx.setText(phrases[counter].innerHTML).then(function () {
-      if (counter < phrases.length) {
-        setTimeout(next, 250);
-      }
-    });
-    counter = counter + 1;
-  };
+  var parentSelector = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '.infos';
 
-  next();
+  return new Promise(function (resolve) {
+    var phrases = $(parentSelector + ' .phrase');
+    var $phrases = $(parentSelector + ' .phrases');
+    var el = $phrases[0];
+    el.innerHTML = '';
+    $phrases.removeClass('hide');
+    var fx = new TextScramble(el);
+    showBySelector(parentSelector);
+    var next = function next(counter) {
+      fx.setText(phrases[counter].innerHTML).then(function () {
+        counter++;
+        if (counter < phrases.length) {
+          setTimeout(next(counter), 250);
+        } else {
+          resolve();
+        }
+      });
+    };
+    next(0);
+  });
 }
 function showTitle() {
   return new Promise(function (resolve) {
@@ -55,6 +61,7 @@ function showTitle() {
         simulateType.setText(phrases[counter]).then(function () {
           counter++;
           if (counter < phrases.length) {
+            $currentChild.addClass('glitch');
             $currentChild.children()[1].remove();
             next(counter);
           } else {
@@ -78,7 +85,11 @@ function showFooter() {
   $('#main').css('margin-bottom', $footer.css('height'));
 }
 
-function showInfos() {
-  var $infos = $('.infos');
-  $infos.show();
+function showBySelector() {
+  var selector = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+
+  var $el = $(selector);
+  if ($el[0]) {
+    $el.show();
+  }
 }

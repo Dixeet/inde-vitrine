@@ -7,31 +7,34 @@ $(document).ready(onReady);
 
 function onReady() {
   showTitle().then(() => {
-    scramble();
     showHeader();
     showFooter();
-    showInfos();
+    scramble('.infos').then(()=>scramble('.exp'));
   });
 }
 
-function scramble() {
-  const phrases = $('.phrase');
-  const $phrases = $('#phrases');
-  const el = $phrases[0];
-  el.innerHTML = '';
-  $phrases.removeClass('hide');
-  const fx = new TextScramble(el);
-  let counter = 0;
-  const next = () => {
-    fx.setText(phrases[counter].innerHTML).then(() => {
-      if (counter < phrases.length) {
-        setTimeout(next, 250);
-      }
-    });
-    counter = (counter + 1);
-  };
+function scramble(parentSelector = '.infos') {
+  return new Promise((resolve) => {
+    const phrases = $(parentSelector + ' .phrase');
+    const $phrases = $(parentSelector + ' .phrases');
+    const el = $phrases[0];
+    el.innerHTML = '';
+    $phrases.removeClass('hide');
+    const fx = new TextScramble(el);
+    showBySelector(parentSelector);
+    const next = (counter) => {
+      fx.setText(phrases[counter].innerHTML).then(() => {
+        counter++;
+        if (counter < phrases.length) {
+          setTimeout(next(counter), 250);
+        } else {
+          resolve();
+        }
+      });
+    };
+    next(0);
+  });
   
-  next();
 }
 function showTitle() {
   return new Promise((resolve) => {
@@ -53,6 +56,7 @@ function showTitle() {
         simulateType.setText(phrases[counter]).then(() => {
           counter++;
           if (counter < phrases.length) {
+            $currentChild.addClass('glitch');
             $currentChild.children()[1].remove();
             next(counter);
           } else {
@@ -76,7 +80,9 @@ function showFooter() {
   $('#main').css('margin-bottom', $footer.css('height'));
 }
 
-function showInfos() {
-  let $infos = $('.infos');
-  $infos.show();
+function showBySelector(selector = '') {
+  let $el = $(selector);
+  if($el[0]) {
+    $el.show();
+  }
 }

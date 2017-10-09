@@ -23,8 +23,6 @@ var TextScramble = function () {
       var _this = this;
 
       var oldText = this.el.innerText;
-      this.newText = newText;
-      console.log(oldText.length, newText.length);
       var length = Math.max(oldText.length, newText.length);
       var promise = new Promise(function (resolve) {
         return _this.resolve = resolve;
@@ -75,9 +73,10 @@ var TextScramble = function () {
           output += from;
         }
       }
+      output = '<span class="phrase">' + output + '</span>';
       this.el.innerHTML = this.oldPhrase + output;
       if (complete === this.queue.length) {
-        this.oldPhrase += this.newText;
+        this.oldPhrase = this.el.innerHTML;
         this.resolve();
       } else {
         this.frameRequest = requestAnimationFrame(function () {

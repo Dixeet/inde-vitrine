@@ -9,8 +9,6 @@ class TextScramble {
   
   setText(newText) {
     const oldText = this.el.innerText;
-    this.newText = newText;
-    console.log(oldText.length, newText.length);
     const length = Math.max(oldText.length, newText.length);
     const promise = new Promise((resolve) => this.resolve = resolve);
     this.queue = [];
@@ -50,9 +48,10 @@ class TextScramble {
         output += from;
       }
     }
+    output = `<span class="phrase">${output}</span>`;
     this.el.innerHTML = this.oldPhrase + output;
     if (complete === this.queue.length) {
-      this.oldPhrase += this.newText;
+      this.oldPhrase = this.el.innerHTML;
       this.resolve();
     } else {
       this.frameRequest = requestAnimationFrame(() => setTimeout(this.update, this.options.timeout));
